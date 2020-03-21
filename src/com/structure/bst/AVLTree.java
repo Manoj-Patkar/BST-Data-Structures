@@ -1,5 +1,7 @@
 package com.structure.bst;
 
+import sun.util.locale.provider.AvailableLanguageTags;
+
 public class AVLTree {
 
     Node root;
@@ -63,7 +65,7 @@ public class AVLTree {
             return n;
 
 
-        n.height = 1 + max(getHeight(n.left),getHeight(n.right));
+        n.height = 1 + max(getHeight(n.left), getHeight(n.right));
 
         int balance = getBalance(n);
 
@@ -91,9 +93,93 @@ public class AVLTree {
 
     }
 
-    void preOrder(Node n){
-        if(n != null){
-            System.out.print(n.key+"   ");
+    public Node delete(Node root, int key) {
+        if (root == null)
+            return root;
+
+        if (key < root.key)
+            root.left = delete(root.left, key);
+
+        else if (key > root.key)
+            root.right = delete(root.right, key);
+
+        else {
+
+            if ((root.left == null) || (root.right == null)) {
+                Node temp = null;
+
+                if (temp == root.right)
+                    temp = root.left;
+
+                else
+                    temp = root.right;
+
+                if (temp == null) {
+                    temp = root;
+                    root = null;
+                } else
+                    root = temp;
+
+            } else {
+                // Inorder successor
+                Node temp = minValue(root.right);
+
+                root.key = temp.key;
+
+                root.right = delete(root.right, temp.key);
+            }
+
+
+        }
+
+        // Only a single node
+        if (root == null) {
+            return root;
+        }
+
+        root.height = max(getHeight(root.left), getHeight(root.right)) + 1;
+
+        int balance = getBalance(root);
+
+        //left left case
+        if (balance > 1 && getBalance(root.left) >= 0) {
+            return rightRotate(root);
+        }
+
+        // left right case
+        if (balance > 1 && getBalance(root.left) < 0) {
+            root.left = leftRotate(root.left);
+
+            return rightRotate(root);
+        }
+
+        // right right case
+        if (balance < -1 && getBalance(root.right) <= 0)
+            return leftRotate(root);
+
+        if (balance < -1 && getBalance(root.right) > 0) {
+            root.right = rightRotate(root.right);
+            return leftRotate(root);
+        }
+
+        return root;
+
+
+    }
+
+    private Node minValue(Node node) {
+        Node current = node;
+
+        while (current.left != null) {
+            current = current.left;
+        }
+
+        return current;
+    }
+
+    void preOrder(Node n) {
+        if (n != null) {
+            System.out.print(n.key + "   ");
             preOrder(n.left);
             preOrder(n.right);
         }
@@ -120,6 +206,55 @@ public class AVLTree {
         System.out.println("Preorder traversal" +
                 " of constructed tree is : ");
         avlTree.preOrder(avlTree.root);
+
+
+        System.out.println("\n\nTesting delete");
+
+        // Testing delete
+
+           /* The constructed AVL Tree would be
+        9
+        / \
+        1 10
+        / \ \
+        0 5 11
+        / / \
+        -1 2 6
+        */
+
+        AVLTree tree = new AVLTree();
+
+        tree.root = tree.insert(tree.root, 9);
+        tree.root = tree.insert(tree.root, 5);
+        tree.root = tree.insert(tree.root, 10);
+        tree.root = tree.insert(tree.root, 0);
+        tree.root = tree.insert(tree.root, 6);
+        tree.root = tree.insert(tree.root, 11);
+        tree.root = tree.insert(tree.root, -1);
+        tree.root = tree.insert(tree.root, 1);
+        tree.root = tree.insert(tree.root, 2);
+
+
+        System.out.println("Preorder traversal of " +
+                "constructed tree is : ");
+        tree.preOrder(tree.root);
+
+        tree.root = tree.delete(tree.root, 10);
+
+        /* The AVL Tree after deletion of 10
+        1
+        / \
+        0 9
+        /     / \
+        -1 5 11
+        / \
+        2 6
+        */
+        System.out.println("");
+        System.out.println("Preorder traversal after " +
+                "deletion of 10 :");
+        tree.preOrder(tree.root);
+
     }
 
 

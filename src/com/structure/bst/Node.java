@@ -5,6 +5,7 @@ public class Node {
     int height;
     Node left;
     Node right;
+    Node parent;
 
     public Node(int key){
         this.key = key;
